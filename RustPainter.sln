@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rust Painter", "Rust Painter\Rust Painter.csproj", "{ECA1BC46-0097-4938-AEAF-7B02644B4D3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ECA1BC46-0097-4938-AEAF-7B02644B4D3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECA1BC46-0097-4938-AEAF-7B02644B4D3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECA1BC46-0097-4938-AEAF-7B02644B4D3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECA1BC46-0097-4938-AEAF-7B02644B4D3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0037BBDE-109D-4F26-B5FB-3CA2773C9638}
+	EndGlobalSection
+EndGlobal
