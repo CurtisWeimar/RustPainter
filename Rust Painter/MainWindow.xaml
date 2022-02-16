@@ -9,7 +9,7 @@
     <Grid>
         <Button x:Name="uploadButton" Content="Upload" HorizontalAlignment="Left" Margin="28,36,0,0" VerticalAlignment="Top" Height="41" Width="90" Background="#FFDDDDDD" Click="UploadImageButton_Click"/>
         <Image x:Name="imgPreview" HorizontalAlignment="Left" Height="90" Margin="28,106,0,0" VerticalAlignment="Top" Width="90"/>
-        <TextBlock x:Name="textOutput" HorizontalAlignment="Left" Margin="161,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="330" Width="159"/>
+        <TextBlock x:Name="textOutput" HorizontalAlignment="Left" Margin="123,80,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="41" Width="159"/>
         <Image x:Name="imgOutput" HorizontalAlignment="Left" Height="90" Margin="28,237,0,0" VerticalAlignment="Top" Width="90"/>
         <Label Content="Preview:" HorizontalAlignment="Left" Margin="28,80,0,0" VerticalAlignment="Top" Width="90"/>
         <Label Content="Output:" HorizontalAlignment="Left" Margin="28,211,0,0" VerticalAlignment="Top" Width="90"/>

@@ -28,6 +28,45 @@ namespace Rust_Painter
             InitializeComponent();
         }
 
+        private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
+        {
+            Console.WriteLine("Interpolating...");
+            // Loop through every source pixel
+            int length = pixels.Count;
+            for (int x = 0; x < pixels.Count; x++)
+            {
+                byte[] pixel = pixels[x]; // R G B A
+                byte red = pixel[0];
+                byte green = pixel[1];
+                byte blue = pixel[2];
+                //byte alpha = pixel[3];  Alpha data not really necessary
+
+                int low_diff = 1000; // Lowest integer difference between colors
+                byte[] newColor = { 0, 0, 0, 255};
+
+                // Loop over every palette color and find the closest
+                for (int y = 0; y < palette.Count; y++)
+                {
+                    byte[] paletteColor = palette[y];
+                    byte _red = paletteColor[0];
+                    byte _green = paletteColor[1];
+                    byte _blue = paletteColor[2];
+
+                    // Calculate distance in 3D RGB color space between the two colors
+                    int diff = ((_red - red) ^ 2 + (_green - green) ^ 2 + (_blue - blue) ^ 2) / 2;
+
+                    //Console.WriteLine("Color Difference: " + diff);
+                    if (y == 0) { low_diff = diff; }
+                    if (diff < low_diff) low_diff = diff; newColor = paletteColor; newColor[3] = 255;
+                }
+
+                // Change pixel color data to the palette
+                Console.WriteLine("Done " + ((double)x / (double)length) * 100 + "%");
+                //outputText("Pace: " + (pixels.Count - x) % 100);
+                pixels[x] = newColor;
+            }
+        }
+
         private void generateColors()
         {
             // Clear out any previous colors and load new one into a Bitmap
@@ -84,6 +123,7 @@ namespace Rust_Painter
         // TODO: Start with basic mouse drawing operations
         // BUG: If the user exits the image selection it continues trying to draw anyways
             // -- This has been band-aid fixed
+            // -- Nvm
         private void DrawImage(BitmapImage source)
         {
             Console.WriteLine("Getting pixel info...");
@@ -93,20 +133,17 @@ namespace Rust_Painter
             WriteableBitmap outputMap = new WriteableBitmap(source);
 
             // Loop throught pixel data
-            Console.WriteLine("Drawing new image...");
+            Console.WriteLine("Checking image data...");
 
             List<byte[]> colors = grabColorData(source);
+
+            interpolateColor(Colors, colors);
 
             int pixelCount = 0;
             for(int y = 0; y < (int)source.Height; y++)
             {
                 for(int x = 0; x < (int)source.Width; x++)
                 {
-                    if(colors.Count >= pixelCount)
-                    {
-                        Console.WriteLine("Length: " + colors.Count);
-                        Console.WriteLine("Pixel Count: " + pixelCount);
-                    }
                     byte[] rgb = colors[pixelCount];
                     Int32Rect rect = new Int32Rect(x, y, 1, 1); // Rect that acts as pixel - cringe
                     outputMap.WritePixels(rect, rgb, 4, 0);
@@ -125,6 +162,7 @@ namespace Rust_Painter
         // TODO: Write this method so that it has two different modes
             // -- One for returning every pixel
             // -- One for returning every unique pixel
+        // TODO: Cull alpha data - don't think it is necessary
         private List<byte[]> grabColorData(BitmapImage source)
         {
             List<byte[]> colors = new List<byte[]>();
@@ -140,7 +178,6 @@ namespace Rust_Painter
             Console.WriteLine("Copying pixel data...");
             source.CopyPixels(pixels, stride, 0); // Actual line copying pixels
             Console.WriteLine("Pixel data copied!");
-            textOutput.Text = "Pixels Array Length: " + pixels.Length / 4;
 
             int pixelCount = 0;
             // Go down the current column
@@ -148,7 +185,7 @@ namespace Rust_Painter
             {
                 // Go across the current row
                 for (int x = 0; x < (int)source.Width; x++)
-                {
+                { 
                     // TODO: Understand how this works
                     int index = y * stride + 4 * x;
 
