@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Rust_Painter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="406" Width="339">
+        Title="Rust Painter" Height="406" Width="339">
     <Grid>
         <Button x:Name="uploadButton" Content="Upload" HorizontalAlignment="Left" Margin="28,36,0,0" VerticalAlignment="Top" Height="41" Width="90" Background="#FFDDDDDD" Click="UploadImageButton_Click"/>
         <Image x:Name="imgPreview" HorizontalAlignment="Left" Height="90" Margin="28,106,0,0" VerticalAlignment="Top" Width="90"/>
@@ -13,6 +13,11 @@
         <Image x:Name="imgOutput" HorizontalAlignment="Left" Height="90" Margin="28,237,0,0" VerticalAlignment="Top" Width="90"/>
         <Label Content="Preview:" HorizontalAlignment="Left" Margin="28,80,0,0" VerticalAlignment="Top" Width="90"/>
         <Label Content="Output:" HorizontalAlignment="Left" Margin="28,211,0,0" VerticalAlignment="Top" Width="90"/>
+        <Menu Margin="0,0,0,367">
+            <MenuItem Header="Options">
+                <MenuItem Header="_Palette Selection" Click="paletteClick"/>
+            </MenuItem>
+        </Menu>
 
     </Grid>
 </Window>
