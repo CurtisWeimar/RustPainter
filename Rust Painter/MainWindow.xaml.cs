@@ -14,27 +14,54 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
+using System.ComponentModel;
 
 namespace Rust_Painter
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        List<byte[]> Colors = new List<byte[]>();
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        Uri paletteURI;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        //Property for the textBlock
+        private string _outPut;
+
+        private List<string> outPutList = new List<string>();
+
+        public string outPut
+        {
+            get { return _outPut; }
+            set
+            {
+                _outPut = value;
+                OnPropertyChanged("outPut");
+            }
+        }
+
+        //Variables
+        private List<byte[]> Colors = new List<byte[]>();
+
+        private Uri paletteURI;
 
         public MainWindow()
         {
             InitializeComponent();
+            mainGrid.DataContext = this;
         }
 
         private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
         {
             Console.WriteLine("Interpolating...");
+
             // Loop through every source pixel
             int length = pixels.Count;
             for (int x = 0; x < pixels.Count; x++)
             {
+                //Get pixel RGB value
                 byte[] pixel = pixels[x]; // R G B A
                 byte red = pixel[0];
                 byte green = pixel[1];
@@ -53,16 +80,21 @@ namespace Rust_Painter
                     byte _blue = paletteColor[2];
 
                     // Calculate distance in 3D RGB color space between the two colors
-                    int diff = ((_red - red) ^ 2 + (_green - green) ^ 2 + (_blue - blue) ^ 2) / 2;
+                    int diff = Math.Abs(((_red - red) ^ 2 + (_green - green) ^ 2 + (_blue - blue) ^ 2) / 2);
 
                     //Console.WriteLine("Color Difference: " + diff);
                     if (y == 0) { low_diff = diff; }
-                    if (diff < low_diff) low_diff = diff; newColor = paletteColor; newColor[3] = 255;
+                    if (diff < low_diff)
+                    {
+                        low_diff = diff;
+                        newColor = paletteColor;
+                        //Console.WriteLine($"New Color: {newColor[0]}, {newColor[1]}, {newColor[2]}");
+                        newColor[3] = 255;
+                    }
                 }
 
                 // Change pixel color data to the palette
                 Console.WriteLine("Done " + ((double)x / (double)length) * 100 + "%");
-                //outputText("Pace: " + (pixels.Count - x) % 100);
                 pixels[x] = newColor;
             }
         }
@@ -78,11 +110,29 @@ namespace Rust_Painter
             // For every color returned add it to the list of colors
             foreach(byte[] color in colors)
             {
-                if(!Colors.Contains(color))
+                if(!checkExists(color))
                 {
                     Colors.Add(color);
+
+                    //Temp debug thing
+                    Console.WriteLine(String.Format("R: {0} G:{1} B:{2}", color[0], color[1], color[2]));
                 }
             }
+        }
+
+        public bool checkExists(byte[] color)
+        {
+            bool exists = false;
+
+            foreach(byte[] colorData in Colors)
+            {
+                if(colorData[0] == color[0] && colorData[1] == color[1] && colorData[2] == color[2])
+                {
+                    exists = true;
+                }
+            }
+
+            return exists;
         }
 
         // TODO: Save URI for which pallete is being used
@@ -118,7 +168,6 @@ namespace Rust_Painter
             DrawImage(selectedImage);
         }
 
-        // TODO: Implement Rust color palette for output Bitmap
         // TODO: Create basic dithering algorithm
         // TODO: Start with basic mouse drawing operations
         // BUG: If the user exits the image selection it continues trying to draw anyways
@@ -127,7 +176,7 @@ namespace Rust_Painter
         private void DrawImage(BitmapImage source)
         {
             Console.WriteLine("Getting pixel info...");
-            
+
 
             // Temporary WriteabelBitmap
             WriteableBitmap outputMap = new WriteableBitmap(source);
@@ -140,14 +189,16 @@ namespace Rust_Painter
             interpolateColor(Colors, colors);
 
             int pixelCount = 0;
-            for(int y = 0; y < (int)source.Height; y++)
+            for (int y = 0; y < (int)source.Height; y++)
             {
-                for(int x = 0; x < (int)source.Width; x++)
+                for (int x = 0; x < (int)source.Width; x++)
                 {
                     byte[] rgb = colors[pixelCount];
-                    Int32Rect rect = new Int32Rect(x, y, 1, 1); // Rect that acts as pixel - cringe
-                    outputMap.WritePixels(rect, rgb, 4, 0);
+                    //Console.WriteLine($"RGB: {rgb[0]}, {rgb[1]}, {rgb[2]}");
+                    Int32Rect rect = new Int32Rect(x, y, 1, 1); // Rect that acts as pixel
+                    outputMap.WritePixels(rect, rgb, source.PixelWidth * 4, 0);
                     pixelCount++;
+                    //Console.WriteLine($"Pixel Count: {pixelCount}");
                 }
             }
 
@@ -163,6 +214,7 @@ namespace Rust_Painter
             // -- One for returning every pixel
             // -- One for returning every unique pixel
         // TODO: Cull alpha data - don't think it is necessary
+
         private List<byte[]> grabColorData(BitmapImage source)
         {
             List<byte[]> colors = new List<byte[]>();
@@ -174,10 +226,7 @@ namespace Rust_Painter
             byte[] pixels = new byte[size];
 
             // Copy pixel data
-            Console.WriteLine("Pixels Array Length: " + pixels.Length);
-            Console.WriteLine("Copying pixel data...");
             source.CopyPixels(pixels, stride, 0); // Actual line copying pixels
-            Console.WriteLine("Pixel data copied!");
 
             int pixelCount = 0;
             // Go down the current column
@@ -185,12 +234,9 @@ namespace Rust_Painter
             {
                 // Go across the current row
                 for (int x = 0; x < (int)source.Width; x++)
-                { 
-                    // TODO: Understand how this works
+                {
                     int index = y * stride + 4 * x;
 
-                    //Console.WriteLine("Index: " + index);
-                    //Console.WriteLine("Index / 4: " + index / 4);
                     int expected_pixel = (y * (int)source.Width) + x;
                     //Console.WriteLine("Expected pixel: " + expected_pixel + "\n");
 
@@ -212,14 +258,27 @@ namespace Rust_Painter
             return colors;
         }
 
-        private void outputTextLine(String text)
+        //Helper functions for outputting text to textblock while maintaining previous outputs
+        private void outputTextLine(string text)
         {
-            textOutput.Text += text;
+            outPutList.Add(text + "\n");
+            updateOutPutString();
         }
 
-        private void outputText(String text)
+        private void outputText(string text)
         {
-            textOutput.Text = text;
+            outPutList[outPutList.Count - 1] = text + "\n";
+            updateOutPutString();
         }
+
+        private void updateOutPutString()
+        {
+            outPut = "";
+            for(int x = 0; x < outPutList.Count; x++)
+            {
+                outPut += outPutList[x];
+            }
+        }
+
     }
 }
