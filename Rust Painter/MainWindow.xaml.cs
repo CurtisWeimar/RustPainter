@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.ComponentModel;
+using System.IO;
 
 namespace Rust_Painter
 {
@@ -53,40 +54,50 @@ namespace Rust_Painter
             mainGrid.DataContext = this;
         }
 
-        private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
+        private void interpolateColor(List<byte[]> _palette, List<byte[]> _pixels)
         {
             Console.WriteLine("Interpolating...");
+            Console.WriteLine($"Lenght of array: {_pixels.Count()}");
+
+            List<double> diffs = new List<double>();
 
             // Loop through every source pixel
-            int length = pixels.Count;
-            for (int x = 0; x < pixels.Count; x++)
+            int length = _pixels.Count;
+            for (int x = 0; x < _pixels.Count; x++)
             {
-                //Get pixel RGB value
-                byte[] pixel = pixels[x]; // R G B A
-                byte red = pixel[0];
-                byte green = pixel[1];
-                byte blue = pixel[2];
+                //Get pixel XYZ value
+                byte[] _pixel = _pixels[x]; // R G B A
+                //Console.WriteLine($"RGB: {_pixel[0]}, {_pixel[1]}, {_pixel[2]}");
+                double[] pixel = ToXYZ(_pixel); // Convert it to XYZ
+                //Console.WriteLine($"XYZ: {pixel[0]}, {pixel[1]}, {pixel[2]}");
+
+                double red = pixel[0];
+                double green = pixel[1];
+                double blue = pixel[2];
                 //byte alpha = pixel[3];  Alpha data not really necessary
 
-                int low_diff = 1000; // Lowest integer difference between colors
-                byte[] newColor = { 0, 0, 0, 255};
+                double low_diff = 1000.0; // Lowest integer difference between colors
+                double[] newColor = { 0, 0, 0, 255 };
 
                 // Loop over every palette color and find the closest
-                for (int y = 0; y < palette.Count; y++)
+                for (int y = 0; y < _palette.Count; y++)
                 {
-                    byte[] paletteColor = palette[y];
-                    byte _red = paletteColor[0];
-                    byte _green = paletteColor[1];
-                    byte _blue = paletteColor[2];
+
+
+                    double[] paletteColor = ToXYZ(_palette[y]); // Convert it to XYZ
+                    double _red = paletteColor[0];
+                    double _green = paletteColor[1];
+                    double _blue = paletteColor[2];
 
                     // Calculate distance in 3D RGB color space between the two colors
-                    int diff = Math.Abs(((_red - red) ^ 2 + (_green - green) ^ 2 + (_blue - blue) ^ 2) / 2);
+                    double diff = Math.Sqrt(Math.Pow((_red - red), 2) + Math.Pow((_green - green), 2) + Math.Pow((_blue - blue), 2));
 
                     //Console.WriteLine("Color Difference: " + diff);
-                    if (y == 0) { low_diff = diff; }
+                    if (y == 0) { low_diff = diff; diffs.Add(diff); }
                     if (diff < low_diff)
                     {
                         low_diff = diff;
+                        diffs.Add(diff);
                         newColor = paletteColor;
                         //Console.WriteLine($"New Color: {newColor[0]}, {newColor[1]}, {newColor[2]}");
                         newColor[3] = 255;
@@ -95,9 +106,64 @@ namespace Rust_Painter
 
                 // Change pixel color data to the palette
                 Console.WriteLine("Done " + ((double)x / (double)length) * 100 + "%");
-                pixels[x] = newColor;
+                _pixels[x] = XYZtoRGB(newColor);
             }
+
+            //Average difference between colors
+            double sum = 0;
+            for(int i = 0; i < diffs.Count(); i++)
+            {
+                sum += diffs[i];
+            }
+            //Console.WriteLine($"Average Color Difference: {sum/diffs.Count()}");
         }
+
+        //private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
+        //{
+        //    Console.WriteLine("Interpolating...");
+
+        //    // Loop through every source pixel
+        //    int length = pixels.Count;
+        //    for (int x = 0; x < pixels.Count; x++)
+        //    {
+        //        //Get pixel RGB value
+        //        byte[] pixel = pixels[x]; // R G B A
+        //        //byte[] pixel = ToXYZ(_pixel);
+        //        byte red = pixel[0];
+        //        byte green = pixel[1];
+        //        byte blue = pixel[2];
+        //        //byte alpha = pixel[3];  Alpha data not really necessary
+
+        //        int low_diff = 1000; // Lowest integer difference between colors
+        //        byte[] newColor = { 0, 0, 0, 255};
+
+        //        // Loop over every palette color and find the closest
+        //        for (int y = 0; y < palette.Count; y++)
+        //        {
+        //            byte[] paletteColor = palette[y];
+        //            byte _red = paletteColor[0];
+        //            byte _green = paletteColor[1];
+        //            byte _blue = paletteColor[2];
+
+        //            // Calculate distance in 3D RGB color space between the two colors
+        //            int diff = Math.Abs(((_red - red) ^ 2 + (_green - green) ^ 2 + (_blue - blue) ^ 2) / 2);
+
+        //            //Console.WriteLine("Color Difference: " + diff);
+        //            if (y == 0) { low_diff = diff; }
+        //            if (diff < low_diff)
+        //            {
+        //                low_diff = diff;
+        //                newColor = paletteColor;
+        //                //Console.WriteLine($"New Color: {newColor[0]}, {newColor[1]}, {newColor[2]}");
+        //                newColor[3] = 255;
+        //            }
+        //        }
+
+        //        // Change pixel color data to the palette
+        //        Console.WriteLine("Done " + ((double)x / (double)length) * 100 + "%");
+        //        pixels[x] = newColor;
+        //    }
+        //}
 
         private void generateColors()
         {
@@ -157,14 +223,13 @@ namespace Rust_Painter
             OpenFileDialog openFileDialog =  new OpenFileDialog();
             if(openFileDialog.ShowDialog() == true)
             {
-                if (openFileDialog.FileName == null) return; // Band-aid fix
                 Uri uri = new Uri(openFileDialog.FileName);
+                
                 selectedImage = new BitmapImage(uri);
                 imgPreview.Source = selectedImage;
             }
 
             Console.WriteLine("Image found successfully!");
-            
             DrawImage(selectedImage);
         }
 
@@ -173,10 +238,10 @@ namespace Rust_Painter
         // BUG: If the user exits the image selection it continues trying to draw anyways
             // -- This has been band-aid fixed
             // -- Nvm
+
         private void DrawImage(BitmapImage source)
         {
             Console.WriteLine("Getting pixel info...");
-
 
             // Temporary WriteabelBitmap
             WriteableBitmap outputMap = new WriteableBitmap(source);
@@ -210,14 +275,11 @@ namespace Rust_Painter
             imgOutput.Source = outputMap;
         }
 
-        // TODO: Write this method so that it has two different modes
-            // -- One for returning every pixel
-            // -- One for returning every unique pixel
         // TODO: Cull alpha data - don't think it is necessary
 
-        private List<byte[]> grabColorData(BitmapImage source)
+        private List<double[]> grabColorDataDouble(BitmapImage source)
         {
-            List<byte[]> colors = new List<byte[]>();
+            List<double[]> colors = new List<double[]>();
 
             // Get pixel info
             // Create pixel array
@@ -246,7 +308,51 @@ namespace Rust_Painter
                     byte blue = pixels[index + 2];
                     byte alpha = pixels[index + 3];
 
-                    // TODO: Write pixel data to WriteableBitmap directly
+                    byte[] RawColorData = { red, green, blue, alpha }; // R G B A
+                    double[] ColorData = ToXYZ(RawColorData);
+
+                    colors.Add(ColorData);
+
+                    pixelCount++;
+                }
+            }
+
+            return colors;
+        }
+
+        private List<byte[]> grabColorData(BitmapImage source)
+        {
+            List<byte[]> colors = new List<byte[]>();
+
+            // Get pixel info
+            // Create pixel array
+            int stride = source.PixelWidth * 4;
+            int size = source.PixelHeight * stride;
+            byte[] pixels = new byte[size];
+
+            // Copy pixel data
+            source.CopyPixels(pixels, stride, 0); // Actual line copying pixels
+
+            int pixelCount = 0;
+            // Go down the current column
+            Console.WriteLine($"Image width: {source.Width}");
+            Console.WriteLine($"Image height: {source.Height}");
+            for (int y = 0; y < (int)source.Height; y++)
+            {
+                // Go across the current row
+                for (int x = 0; x < (int)source.Width; x++)
+                {
+                    int index = y * stride + 4 * x;
+
+                    int expected_pixel = (y * (int)source.Width) + x;
+                    //Console.WriteLine("Expected pixel: " + expected_pixel + "\n");
+
+                    // Pixel color/alpha data
+                    byte red = pixels[index];
+                    byte green = pixels[index + 1];
+                    byte blue = pixels[index + 2];
+                    byte alpha = pixels[index + 3];
+                    
                     byte[] ColorData = { red, green, blue, alpha }; // R G B A
 
                     colors.Add(ColorData);
@@ -256,6 +362,52 @@ namespace Rust_Painter
             }
 
             return colors;
+        }
+        
+        private double[] ToXYZ(byte[] pixel)
+        {
+            double[] converted;
+
+            double rLinear = (double)(pixel[0] / 255.0);
+            double gLinear = (double)(pixel[1] / 255.0);
+            double bLinear = (double)(pixel[2] / 255.0);
+
+            double r = (rLinear > 0.04045) ? Math.Pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
+            double g = (gLinear > 0.04045) ? Math.Pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
+            double b = (bLinear > 0.04045) ? Math.Pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
+
+            converted = new double[4];
+            converted[0] = (r * 0.4124 + g * 0.3576 + b * 0.1805);
+            converted[1] = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+            converted[2] = (r * 0.0193 + g * 0.1192 + b * 0.9505);
+            converted[3] = pixel[3];
+
+            return converted;
+        }
+
+        private byte[] XYZtoRGB(double[] xyz)
+        {
+            byte[] conv = new byte[4];
+
+            double x = xyz[0];
+            double y = xyz[1];
+            double z = xyz[2];
+
+            double[] Clinear = new double[3];
+            Clinear[0] = x * 3.2410 - y * 1.5374 - z * 0.4986; // red
+            Clinear[1] = -x * 0.9692 + y * 1.8760 - z * 0.0416; // green
+            Clinear[2] = x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
+
+            for (int i = 0; i < 3; i++)
+            {
+                Clinear[i] = (Clinear[i] <= 0.0031308) ? 12.92 * Clinear[i] : (1 + 0.055) * Math.Pow(Clinear[i], (1.0 / 2.4)) - 0.055;
+            }
+
+            conv[0] = (byte)(x * 255);
+            conv[1] = (byte)(y * 255);
+            conv[2] = (byte)(z * 255);
+
+            return conv;
         }
 
         //Helper functions for outputting text to textblock while maintaining previous outputs

@@ -5,15 +5,29 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Rust_Painter"
         mc:Ignorable="d"
-        Title="Rust Painter" Height="406" Width="339">
-    <Grid x:Name="mainGrid">
-        <Button x:Name="uploadButton" Content=" Select Image" HorizontalAlignment="Left" Margin="28,56,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="UploadImageButton_Click"/>
-        <Image x:Name="imgPreview" HorizontalAlignment="Left" Height="90" Margin="28,106,0,0" VerticalAlignment="Top" Width="90"/>
-        <TextBlock x:Name="textOutput" HorizontalAlignment="Left" Margin="170,28,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="196" Width="158" Text="{Binding Path=outPut}"/>
-        <Image x:Name="imgOutput" HorizontalAlignment="Left" Height="90" Margin="28,237,0,0" VerticalAlignment="Top" Width="90"/>
-        <Label Content="Preview:" HorizontalAlignment="Left" Margin="28,80,0,0" VerticalAlignment="Top" Width="90"/>
-        <Label Content="Output:" HorizontalAlignment="Left" Margin="28,211,0,0" VerticalAlignment="Top" Width="90"/>
-        <Button x:Name="paletteButton" Content=" Select Palette" HorizontalAlignment="Left" Margin="28,30,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="paletteClick"/>
+        MinHeight="423"
+        MinWidth="362"
+        Title="Rust Painter" Height="423" Width="362">
+    
+    <Grid x:Name="mainGrid" Margin="0,0,169,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <Button x:Name="uploadButton" Grid.Row="0" Content=" Select Image" HorizontalAlignment="Left" Margin="28,47,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="UploadImageButton_Click"/>
+        <Label Content="Preview:" Grid.Row="1" HorizontalAlignment="Left" Margin="28,10,0,0" VerticalAlignment="Top" Width="90"/>
+        <Image x:Name="imgPreview" Grid.Row="1" HorizontalAlignment="Left" Height="Auto" Margin="28,53,0,0" VerticalAlignment="Top" Width="Auto"/>
+
+        <TextBlock x:Name="textOutput" HorizontalAlignment="Left" Margin="173,33,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="196" Width="158" Text="{Binding Path=outPut}" Grid.RowSpan="3"/>
+
+        <Image x:Name="imgOutput" Grid.Row="2" HorizontalAlignment="Left" Height="Auto" Margin="28,57,0,0" VerticalAlignment="Top" Width="Auto"/>
+        <Label Content="Output:" Grid.Row="2" HorizontalAlignment="Left" Margin="28,10,0,0" VerticalAlignment="Top" Width="90"/>
+        <Button x:Name="paletteButton" Grid.Row="0" Content=" Select Palette" HorizontalAlignment="Left" Margin="28,18,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="paletteClick"/>
 
     </Grid>
 </Window>
