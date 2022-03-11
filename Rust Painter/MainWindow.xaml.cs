@@ -54,7 +54,7 @@ namespace Rust_Painter
             mainGrid.DataContext = this;
         }
 
-        private void interpolateColor(List<byte[]> _palette, List<byte[]> _pixels)
+        private async Task<Task> interpolateColor(List<byte[]> _palette, List<byte[]> _pixels)
         {
             Console.WriteLine("Interpolating...");
             Console.WriteLine($"Lenght of array: {_pixels.Count()}");
@@ -116,6 +116,7 @@ namespace Rust_Painter
                 sum += diffs[i];
             }
             //Console.WriteLine($"Average Color Difference: {sum/diffs.Count()}");
+            return Task.CompletedTask;
         }
 
         //private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
@@ -239,7 +240,7 @@ namespace Rust_Painter
             // -- This has been band-aid fixed
             // -- Nvm
 
-        private void DrawImage(BitmapImage source)
+        private async void DrawImage(BitmapImage source)
         {
             Console.WriteLine("Getting pixel info...");
 
@@ -251,7 +252,7 @@ namespace Rust_Painter
 
             List<byte[]> colors = grabColorData(source);
 
-            interpolateColor(Colors, colors);
+            await interpolateColor(Colors, colors);
 
             int pixelCount = 0;
             for (int y = 0; y < (int)source.Height; y++)
