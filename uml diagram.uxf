@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>10</y>
+      <w>350</w>
+      <h>230</h>
+    </coordinates>
+    <panel_attributes>Color
+--
+- double red
+- double green
+- double red
+- double alpha
+
+- double x
+- double y
+- double z
+
+--
+- double [] ToXYZ(Color)
+- double [] ToRGB(Color)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>370</x>
+      <y>10</y>
+      <w>190</w>
+      <h>200</h>
+    </coordinates>
+    <panel_attributes>ImageController
+--
+- WriteableBitmap finalImage
+- BitmapImage palette
+
+- ArrayList&lt;Color&gt; palette
+- ArrayList&lt;Color&gt; pixels
+--
++ grabColors(BitmapImage)
+- redraw()
+
+- bool loadPalette()
+- bool savePalette()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>560</x>
+      <y>140</y>
+      <w>120</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>loadPalette and 
+savePalette
+return 0 on fail
+1 on sucess
+bg=orange</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>370</x>
+      <y>220</y>
+      <w>630</w>
+      <h>520</h>
+    </coordinates>
+    <panel_attributes>ColorController
+--
+
+--
++ Color interpolateXYZ(Color[] _palette, Color[] _pixels)</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

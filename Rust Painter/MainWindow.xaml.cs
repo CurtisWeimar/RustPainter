@@ -54,71 +54,6 @@ namespace Rust_Painter
             mainGrid.DataContext = this;
         }
 
-        private async Task<Task> interpolateColor(List<byte[]> _palette, List<byte[]> _pixels)
-        {
-            Console.WriteLine("Interpolating...");
-            Console.WriteLine($"Lenght of array: {_pixels.Count()}");
-
-            List<double> diffs = new List<double>();
-
-            // Loop through every source pixel
-            int length = _pixels.Count;
-            for (int x = 0; x < _pixels.Count; x++)
-            {
-                //Get pixel XYZ value
-                byte[] _pixel = _pixels[x]; // R G B A
-                //Console.WriteLine($"RGB: {_pixel[0]}, {_pixel[1]}, {_pixel[2]}");
-                double[] pixel = ToXYZ(_pixel); // Convert it to XYZ
-                //Console.WriteLine($"XYZ: {pixel[0]}, {pixel[1]}, {pixel[2]}");
-
-                double red = pixel[0];
-                double green = pixel[1];
-                double blue = pixel[2];
-                //byte alpha = pixel[3];  Alpha data not really necessary
-
-                double low_diff = 1000.0; // Lowest integer difference between colors
-                double[] newColor = { 0, 0, 0, 255 };
-
-                // Loop over every palette color and find the closest
-                for (int y = 0; y < _palette.Count; y++)
-                {
-
-
-                    double[] paletteColor = ToXYZ(_palette[y]); // Convert it to XYZ
-                    double _red = paletteColor[0];
-                    double _green = paletteColor[1];
-                    double _blue = paletteColor[2];
-
-                    // Calculate distance in 3D RGB color space between the two colors
-                    double diff = Math.Sqrt(Math.Pow((_red - red), 2) + Math.Pow((_green - green), 2) + Math.Pow((_blue - blue), 2));
-
-                    //Console.WriteLine("Color Difference: " + diff);
-                    if (y == 0) { low_diff = diff; diffs.Add(diff); }
-                    if (diff < low_diff)
-                    {
-                        low_diff = diff;
-                        diffs.Add(diff);
-                        newColor = paletteColor;
-                        //Console.WriteLine($"New Color: {newColor[0]}, {newColor[1]}, {newColor[2]}");
-                        newColor[3] = 255;
-                    }
-                }
-
-                // Change pixel color data to the palette
-                Console.WriteLine("Done " + ((double)x / (double)length) * 100 + "%");
-                _pixels[x] = XYZtoRGB(newColor);
-            }
-
-            //Average difference between colors
-            double sum = 0;
-            for(int i = 0; i < diffs.Count(); i++)
-            {
-                sum += diffs[i];
-            }
-            //Console.WriteLine($"Average Color Difference: {sum/diffs.Count()}");
-            return Task.CompletedTask;
-        }
-
         //private void interpolateColor(List<byte[]> palette, List<byte[]> pixels)
         //{
         //    Console.WriteLine("Interpolating...");
@@ -231,7 +166,7 @@ namespace Rust_Painter
             }
 
             Console.WriteLine("Image found successfully!");
-            DrawImage(selectedImage);
+            this.Dispatcher.Invoke(() => DrawImage(selectedImage));
         }
 
         // TODO: Create basic dithering algorithm
@@ -252,7 +187,7 @@ namespace Rust_Painter
 
             List<byte[]> colors = grabColorData(source);
 
-            await interpolateColor(Colors, colors);
+            //await interpolateColor(Colors, colors);
 
             int pixelCount = 0;
             for (int y = 0; y < (int)source.Height; y++)
@@ -266,6 +201,8 @@ namespace Rust_Painter
                     pixelCount++;
                     //Console.WriteLine($"Pixel Count: {pixelCount}");
                 }
+                imgOutput.Source = outputMap;
+                await Task.Delay(500);
             }
 
             //Int32Rect rect = new Int32Rect(x, y, 1, 1); // Rect that acts as pixel - cringe
@@ -273,7 +210,7 @@ namespace Rust_Painter
             //outputMap.WritePixels(rect, ColorData, 4, 0);
 
             Console.WriteLine("Finished drawing image...");
-            imgOutput.Source = outputMap;
+            
         }
 
         // TODO: Cull alpha data - don't think it is necessary
@@ -310,9 +247,9 @@ namespace Rust_Painter
                     byte alpha = pixels[index + 3];
 
                     byte[] RawColorData = { red, green, blue, alpha }; // R G B A
-                    double[] ColorData = ToXYZ(RawColorData);
+                    //double[] ColorData = ToXYZ(RawColorData);
 
-                    colors.Add(ColorData);
+                    //colors.Add(ColorData);
 
                     pixelCount++;
                 }
@@ -364,27 +301,6 @@ namespace Rust_Painter
 
             return colors;
         }
-        
-        private double[] ToXYZ(byte[] pixel)
-        {
-            double[] converted;
-
-            double rLinear = (double)(pixel[0] / 255.0);
-            double gLinear = (double)(pixel[1] / 255.0);
-            double bLinear = (double)(pixel[2] / 255.0);
-
-            double r = (rLinear > 0.04045) ? Math.Pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
-            double g = (gLinear > 0.04045) ? Math.Pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
-            double b = (bLinear > 0.04045) ? Math.Pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
-
-            converted = new double[4];
-            converted[0] = (r * 0.4124 + g * 0.3576 + b * 0.1805);
-            converted[1] = (r * 0.2126 + g * 0.7152 + b * 0.0722);
-            converted[2] = (r * 0.0193 + g * 0.1192 + b * 0.9505);
-            converted[3] = pixel[3];
-
-            return converted;
-        }
 
         private byte[] XYZtoRGB(double[] xyz)
         {
@@ -420,7 +336,8 @@ namespace Rust_Painter
 
         private void outputText(string text)
         {
-            outPutList[outPutList.Count - 1] = text + "\n";
+            if(outPutList.Count > 0) outPutList[outPutList.Count - 1] = text + "\n";
+            else outPutList.Add(text + "\n");
             updateOutPutString();
         }
 
