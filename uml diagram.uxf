@@ -4,10 +4,10 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>10</x>
-      <y>10</y>
-      <w>350</w>
-      <h>230</h>
+      <x>0</x>
+      <y>260</y>
+      <w>170</w>
+      <h>170</h>
     </coordinates>
     <panel_attributes>Color
 --
@@ -20,40 +20,37 @@
 - double y
 - double z
 
---
-- double [] ToXYZ(Color)
-- double [] ToRGB(Color)
+
 </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>370</x>
-      <y>10</y>
+      <x>180</x>
+      <y>260</y>
       <w>190</w>
       <h>200</h>
     </coordinates>
     <panel_attributes>ImageController
 --
+- ColorController controller
+
 - WriteableBitmap finalImage
-- BitmapImage palette
+- BitmapImage paletteImage
 
-- ArrayList&lt;Color&gt; palette
-- ArrayList&lt;Color&gt; pixels
+- List&lt;Color&gt; palette
+- List&lt;Color&gt; pixels
 --
-+ grabColors(BitmapImage)
-- redraw()
-
-- bool loadPalette()
-- bool savePalette()</panel_attributes>
++ DrawImage()
+</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>560</x>
-      <y>140</y>
+      <x>380</x>
+      <y>460</y>
       <w>120</w>
       <h>70</h>
     </coordinates>
@@ -67,16 +64,24 @@ bg=orange</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>370</x>
-      <y>220</y>
-      <w>630</w>
-      <h>520</h>
+      <x>380</x>
+      <y>260</y>
+      <w>350</w>
+      <h>200</h>
     </coordinates>
     <panel_attributes>ColorController
 --
 
 --
-+ Color interpolateXYZ(Color[] _palette, Color[] _pixels)</panel_attributes>
++ Color interpolateXYZ(Color[] _palette, Color[] _pixels)
++ generateColors()
++ grabColors(BitmapImage)
+
+- bool checkExists(Color color)
+- bool loadPalette()
+- bool savePalette()
+- double [] ToXYZ(Color)
+- double [] ToRGB(Color)</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

@@ -28,3 +28,4 @@ C:\Side Projects\Rust Auto Painter\RustPainter\Rust Painter\obj\Debug\Rust Paint
 C:\Side Projects\Rust Auto Painter\RustPainter\Rust Painter\obj\Debug\Rust Painter.csproj.CoreCompileInputs.cache
 C:\Side Projects\Rust Auto Painter\RustPainter\Rust Painter\obj\Debug\Rust Painter.exe
 C:\Side Projects\Rust Auto Painter\RustPainter\Rust Painter\obj\Debug\Rust Painter.pdb
+C:\Side Projects\Rust Auto Painter\RustPainter\Rust Painter\obj\Debug\Rust Painter.csproj.AssemblyReference.cache
