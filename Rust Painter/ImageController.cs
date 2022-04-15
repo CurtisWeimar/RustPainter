@@ -51,7 +51,7 @@ namespace Rust_Painter
             this.sourceHeight = (int)sourceImage.Height;
             this.sourceWidth = (int)sourceImage.Width;
             this.pixels = ColorController.grabColorData(this.sourceImage);
-            this.uniquePixels = ColorController.grabColorDataUnique(this.sourceImage);
+            //this.uniquePixels = ColorController.grabColorDataUnique(this.sourceImage);
             Console.WriteLine("Source Processed!");
         }
         public WriteableBitmap getFinalImage() { return finalImage; }
@@ -59,21 +59,29 @@ namespace Rust_Painter
         public void setFinalImage(WriteableBitmap source) { finalImage = source; }
 
         //Methods
+        
+        /* Drawing system refactor pseudo-code
+         * 
+         * interpolate() {
+         *      Get all pixels of same color
+         *      Put them into list with X and Y coordinate
+         *      Go through list drawing all pixels of same color
+         *      Loop this process
+         * }
+         */
+
         public async void drawImage()
         {
-            //if(paletteImage == null || finalImage == null || sourceImage == null)
-            //{
-            //    Console.WriteLine($"Palette: {paletteImage != null}, Final: {finalImage != null}, Source: {sourceImage != null}");
-            //    Console.WriteLine("One or both images not set!");
-            //    return;
-            //}
+            //Checks to make sure nothing is null
+            if (paletteImage == null || finalImage == null || sourceImage == null)
+            {
+                Console.WriteLine($"Palette: {paletteImage != null}, Final: {finalImage != null}, Source: {sourceImage != null}");
+                Console.WriteLine("One or both images not set!");
+                return;
+            }
 
-            //Hopefully this works lmao
-            ColorController.interpolateXYZ(palette, pixels);
+            ColorController.interpolateXYZ(palette, pixels); //Line that interpolates all pixels individually - unoptimal
             //List<Color> colors = ColorController.interpXYZ(palette, uniquePixels);
-
-            Console.WriteLine($"Access: {finalImage.Dispatcher.CheckAccess()}");
-            Console.WriteLine($"Access through invoke: {finalImage.Dispatcher.Invoke(() => finalImage.Dispatcher.CheckAccess())}");
 
             int pixelCount = 0;
             for(int y = 0; y < sourceHeight; y++)
@@ -81,24 +89,25 @@ namespace Rust_Painter
                 for(int x = 0; x < sourceWidth; x++)
                 {
                     double[] rgb = pixels[pixelCount].getRGB();
-                    byte[] _rgb = { (byte)rgb[0], (byte)rgb[1], (byte)rgb[2], 255 };
 
                     //for (int i = 0; i < uniquePixels.Count; i++)
                     //{
                     //    double[] c = uniquePixels[i].getRGB();
-                    //    if(rgb[0] == c[0] && rgb[1] == c[1] && rgb[2] == c[2])
+                    //    if (rgb[0] == c[0] && rgb[1] == c[1] && rgb[2] == c[2])
                     //    {
                     //        rgb = c;
                     //        break;
                     //    }
                     //}
 
+                    byte[] _rgb = { (byte)rgb[0], (byte)rgb[1], (byte)rgb[2], 255 };
+
                     Int32Rect rect = new Int32Rect(x, y, 1, 1);
 
-                    Dispatcher disp = finalImage.Dispatcher;
+                    Dispatcher disp = finalImage.Dispatcher; //Get the dispatcher the bitmap was created on
                     //disp.Invoke(() => 
-                    disp.Invoke(() => finalImage.WritePixels(rect, _rgb, sourceImage.PixelWidth * 4, 0));
-                    await Task.Delay(10);
+                    disp.Invoke(() => finalImage.WritePixels(rect, _rgb, sourceImage.PixelWidth * 4, 0)); //Actually drawing pixel
+                    await Task.Delay(1); //Delay so that UI can update. Comment out to draw image instantly
                     pixelCount++;
                 }
             }

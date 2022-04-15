@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Rust_Painter"
         mc:Ignorable="d"
-        MinHeight="423"
-        MinWidth="362"
-        Title="Rust Painter" Height="423" Width="362">
+        MinHeight="584"
+        MinWidth="566"
+        Title="Rust Painter" Height="584" Width="566">
 
 
     <Grid x:Name="mainGrid">
@@ -25,11 +25,12 @@
         <Label Content="Preview:" Grid.Row="1" HorizontalAlignment="Left" Margin="28,10,0,0" VerticalAlignment="Top" Width="90"/>
         <Image x:Name="imgPreview" Grid.Row="1" HorizontalAlignment="Left" Height="Auto" Margin="28,53,0,0" VerticalAlignment="Top" Width="Auto"/>
 
-        <Image x:Name="imgOutput" Grid.Row="2" HorizontalAlignment="Left" Height="Auto" Margin="28,57,0,0" VerticalAlignment="Top" Width="Auto"/>
-        <Label Content="Output:" Grid.Row="2" HorizontalAlignment="Left" Margin="28,10,0,0" VerticalAlignment="Top" Width="90"/>
+        <Image x:Name="imgOutput" Grid.Row="1" HorizontalAlignment="Left" Height="Auto" Margin="34,53,0,0" VerticalAlignment="Top" Width="Auto" Grid.Column="1"/>
+        <Label Content="Output:" Grid.Row="1" HorizontalAlignment="Left" Margin="34,10,0,0" VerticalAlignment="Top" Width="90" Grid.Column="1"/>
         <Button x:Name="paletteButton" Grid.Row="0" Content=" Select Palette" HorizontalAlignment="Left" Margin="28,18,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="paletteClick"/>
-        <TextBlock x:Name="textOutput" Grid.Column="1" Margin="10,0,10,0" TextWrapping="Wrap" VerticalAlignment="Center" Height="143" Text="{Binding outPut}" Grid.Row="1"/>
+        <TextBlock x:Name="textOutput" Margin="10,0,10,0" TextWrapping="Wrap" VerticalAlignment="Center" Height="143" Text="{Binding outPut}" Grid.Row="2"/>
         <Image x:Name="palatteImg" HorizontalAlignment="Left" Height="Auto" Width="Auto" Margin="10,10,0,0" Grid.Row="2" VerticalAlignment="Top" Grid.Column="1"/>
+        <Button x:Name="redrawButton" Grid.Row="0" Content="Redraw" HorizontalAlignment="Left" Margin="28,73,0,0" VerticalAlignment="Top" Height="21" Width="90" Background="#FFDDDDDD" Click="RedrawButton_Click"/>
 
     </Grid>
 </Window>
