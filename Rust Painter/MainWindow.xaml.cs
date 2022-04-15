@@ -23,7 +23,6 @@ namespace Rust_Painter
 {
     public partial class MainWindow : Window
     {
-        ConcurrentQueue<WriteableBitmap> maps = new ConcurrentQueue<WriteableBitmap>();
         ImageController controller = new ImageController();
 
         private List<string> outPutList = new List<string>();
